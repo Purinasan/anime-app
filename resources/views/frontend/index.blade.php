@@ -392,7 +392,7 @@
     <div class="container">
         <header>
             <h1>LIST ANIME RECOMMENDED</h1>
-            <p class="author">BY RIZKY PRIMA JULIANTO</p>
+            
         </header>
 
         <main>
