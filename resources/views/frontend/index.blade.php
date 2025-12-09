@@ -12,22 +12,55 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
+        /* CSS Variables for Theme */
+        :root {
+            --bg-gradient-start: rgba(26, 26, 46, 0.7);
+            --bg-gradient-end: rgba(22, 33, 62, 0.75);
+            --text-primary: #ffffff;
+            --text-secondary: #f0f0f0;
+            --card-bg: rgba(255, 255, 255, 0.15);
+            --card-bg-hover: rgba(255, 255, 255, 0.2);
+            --card-border: rgba(255, 255, 255, 0.2);
+            --input-bg: rgba(255, 255, 255, 0.15);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --primary-color: #ff6b81;
+            --secondary-color: #1afac0;
+        }
+        /* Light Mode Variables */
+        body.light-mode {
+            --bg-gradient-start: rgba(255, 255, 255, 0.9);
+            --bg-gradient-end: rgba(245, 247, 250, 0.9);
+            --text-primary: #2c3e50;
+            --text-secondary: #34495e;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-bg-hover: rgba(255, 255, 255, 1);
+            --card-border: rgba(52, 152, 219, 0.3);
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
         body {
             background: 
-                linear-gradient(
-                    rgba(26, 26, 46, 0.7),
-                    rgba(22, 33, 62, 0.75)
-                ),
+                linear-gradient(var(--bg-gradient-start), var(--bg-gradient-end)),
                 url('https://images.unsplash.com/photo-1578632767115-351597cf2477?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
-            color: #ffffff;
+            color: var(--text-primary);
             min-height: 100vh;
             padding: 20px;
+            transition: all 0.5s ease;
         }
-
+        body.light-mode {
+        background: 
+            linear-gradient(var(--bg-gradient-start), var(--bg-gradient-end)),
+            url('https://images.unsplash.com/photo-1511296265581-c494a5851fc3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+    }
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -37,24 +70,66 @@
             text-align: center;
             margin-bottom: 30px;
             padding: 25px;
-            background: rgba(255, 255, 255, 0.15);
+            background: var(--card-bg);
             border-radius: 15px;
             backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 8px 32px var(--shadow-color);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 2px solid var(--primary-color);
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255, 107, 129, 0.4);
+        }
+
+        .theme-toggle i {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .theme-toggle:hover i {
+            transform: rotate(20deg);
+        }
+
+        .theme-toggle span {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
         }
 
         h1 {
-            color: #ff6b81;
+            color: var(--primary-color);
             font-size: 2.5rem;
             margin-bottom: 10px;
             text-shadow: 0 2px 10px rgba(255, 107, 129, 0.4);
+            transition: color 0.3s ease;
         }
 
         .author {
-            color: #1afac0;
+            color: var(--secondary-color);
             font-size: 1.1rem;
             font-weight: 500;
+            transition: color 0.3s ease;
         }
 
         .search-bar {
@@ -68,16 +143,22 @@
             flex: 1;
             max-width: 400px;
             padding: 12px 20px;
-            border: 2px solid #ff6b81;
+            border: 2px solid var(--primary-color);
             border-radius: 25px;
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
+            background: var(--input-bg);
+            color: var(--text-primary);
             font-size: 1rem;
             backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        body.light-mode .search-bar input {
+            border-color: #3498db;
         }
 
         .search-bar input::placeholder {
-            color: #e0e0e0;
+            color: var(--text-secondary);
+            opacity: 0.7;
         }
 
         .search-bar button {
@@ -92,10 +173,17 @@
             backdrop-filter: blur(10px);
         }
 
+        body.light-mode .search-bar button {
+            background: #3498db;
+        }
+
         .search-bar button:hover {
-            background: rgba(255, 133, 152, 0.95);
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(255, 107, 129, 0.5);
+        }
+
+        body.light-mode .search-bar button:hover {
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.5);
         }
 
         .anime-grid {
@@ -106,22 +194,26 @@
         }
 
         .anime-card {
-            background: rgba(255, 255, 255, 0.15);
+            background: var(--card-bg);
             border-radius: 15px;
             padding: 25px;
             backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid var(--card-border);
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px var(--shadow-color);
         }
 
         .anime-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-            border-color: #ff6b81;
-            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 40px var(--shadow-color);
+            border-color: var(--primary-color);
+            background: var(--card-bg-hover);
+        }
+
+        body.light-mode .anime-card:hover {
+            border-color: #3498db;
         }
 
         .anime-card::before {
@@ -131,7 +223,11 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #ff6b81, #1afac0);
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        body.light-mode .anime-card::before {
+            background: linear-gradient(90deg, #3498db, #2ecc71);
         }
 
         .anime-media-container {
@@ -149,6 +245,10 @@
             border: 2px solid rgba(255, 123, 148, 0.5);
         }
 
+        body.light-mode .anime-image {
+            border-color: rgba(52, 152, 219, 0.5);
+        }
+
         .anime-image img {
             width: 100%;
             height: 100%;
@@ -161,7 +261,7 @@
         }
 
         .anime-image.no-image {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--input-bg);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -169,12 +269,11 @@
         }
 
         .no-image-placeholder {
-            color: #ccc;
+            color: var(--text-secondary);
             font-size: 1rem;
             font-weight: 600;
         }
 
-        /* Video Overlay - Shows on hover */
         .video-overlay {
             position: absolute;
             top: 0;
@@ -193,7 +292,6 @@
             border-radius: 10px;
         }
 
-        /* Video Buttons Container - Side by Side */
         .video-buttons {
             display: flex;
             gap: 15px;
@@ -204,7 +302,6 @@
             padding: 0 20px;
         }
 
-        /* Video Button Styling */
         .video-btn {
             background: rgba(0, 0, 0, 0.6);
             border: 2px solid #ff6b81;
@@ -248,7 +345,6 @@
             text-align: center;
         }
 
-        /* Opening button different color */
         .video-btn.opening-btn {
             border-color: #1afac0;
         }
@@ -267,7 +363,6 @@
             color: white;
         }
 
-        /* Video Embed Container */
         .video-embed {
             position: absolute;
             top: 0;
@@ -289,24 +384,35 @@
         }
 
         .anime-title {
-            color: #ff6b81;
+            color: var(--primary-color);
             font-size: 1.4rem;
             margin-bottom: 15px;
             font-weight: 700;
+            transition: color 0.3s ease;
+        }
+
+        body.light-mode .anime-title {
+            color: #2c3e50;
         }
 
         .anime-genre {
-            color: #1afac0;
+            color: var(--secondary-color);
             margin-bottom: 10px;
             font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        body.light-mode .anime-genre {
+            color: #27ae60;
         }
 
         .anime-description {
-            color: #f0f0f0;
+            color: var(--text-secondary);
             margin-bottom: 15px;
             line-height: 1.5;
             position: relative;
             overflow: hidden;
+            transition: color 0.3s ease;
         }
 
         .anime-description.truncated {
@@ -332,8 +438,11 @@
             display: inline-block;
         }
 
+        body.light-mode .read-more-btn {
+            background: #3498db;
+        }
+
         .read-more-btn:hover {
-            background: rgba(255, 133, 152, 0.95);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(255, 107, 129, 0.4);
         }
@@ -351,18 +460,22 @@
             text-shadow: 0 0 10px rgba(255, 235, 59, 0.3);
         }
 
+        body.light-mode .anime-rating {
+            color: #f39c12;
+        }
+
         .no-anime {
             text-align: center;
-            color: #f0f0f0;
+            color: var(--text-secondary);
             font-size: 1.2rem;
             grid-column: 1 / -1;
             padding: 40px;
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--card-bg);
             border-radius: 15px;
             backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
         }
 
-        /* Mobile Responsive */
         @media (max-width: 768px) {
             .anime-grid {
                 grid-template-columns: 1fr;
@@ -376,6 +489,12 @@
                 background-attachment: scroll;
             }
 
+            .theme-toggle {
+                position: static;
+                margin: 10px auto 0;
+                width: fit-content;
+            }
+
             .video-buttons {
                 flex-direction: column;
                 gap: 10px;
@@ -387,12 +506,17 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <header>
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                <i class="fas fa-moon" id="themeIcon"></i>
+                <span id="themeText">Dark Mode</span>
+            </button>
             <h1>LIST ANIME RECOMMENDED</h1>
-            
+            <p class="author">BY RIZKY PRIMA JULIANTO</p>
         </header>
 
         <main>
@@ -411,7 +535,40 @@
         const STORAGE_URL = '{{ url("/storage") }}';
         let isLoading = false;
 
+        // Theme Toggle Function
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            
+            body.classList.toggle('light-mode');
+            
+            if (body.classList.contains('light-mode')) {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                themeText.textContent = 'Light Mode';
+                localStorage.setItem('theme', 'light');
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                themeText.textContent = 'Dark Mode';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load saved theme on page load
         document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                themeText.textContent = 'Light Mode';
+            }
+            
             loadAnime();
             setupSearch();
         });
@@ -614,7 +771,6 @@
                     let hoverTimer;
                     let isVideoPlaying = false;
                     
-                    // Show buttons on hover
                     card.addEventListener('mouseenter', function() {
                         if (!isVideoPlaying) {
                             clearTimeout(hoverTimer);
@@ -627,7 +783,6 @@
                         }
                     });
                     
-                    // Handle button clicks
                     videoButtons.forEach(btn => {
                         btn.addEventListener('click', function(e) {
                             e.stopPropagation();
@@ -637,17 +792,14 @@
                             const videoId = extractYouTubeId(videoUrl);
                             
                             if (videoId) {
-                                // On mobile, open in new tab
                                 if (window.innerWidth <= 768) {
                                     window.open(videoUrl, '_blank');
                                     return;
                                 }
                                 
-                                // On desktop, play in card
                                 isVideoPlaying = true;
                                 iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
                                 
-                                // Smooth transition to video
                                 videoOverlay.style.opacity = '0';
                                 setTimeout(() => {
                                     videoOverlay.style.display = 'none';
@@ -660,22 +812,19 @@
                         });
                     });
                     
-                    // Reset on mouse leave
                     card.addEventListener('mouseleave', function() {
                         clearTimeout(hoverTimer);
                         
                         if (isVideoPlaying) {
-                            // Stop video and reset
                             isVideoPlaying = false;
                             videoEmbed.style.opacity = '0';
                             setTimeout(() => {
                                 videoEmbed.style.display = 'none';
-                                iframe.src = ''; // Stop video
+                                iframe.src = '';
                                 videoOverlay.style.display = 'none';
                                 videoOverlay.style.opacity = '0';
                             }, 300);
                         } else {
-                            // Just hide overlay if not playing
                             videoOverlay.style.opacity = '0';
                             setTimeout(() => {
                                 videoOverlay.style.display = 'none';
