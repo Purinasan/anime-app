@@ -11,7 +11,8 @@ class AnimeController extends Controller
 {
     public function index()
     {
-        $anime = Anime::latest()->get();
+        // Load episodes relationship to count them
+        $anime = Anime::with('episodes')->latest()->get();
         return view('admin.anime.index', compact('anime'));
     }
 
@@ -28,7 +29,8 @@ class AnimeController extends Controller
             'description' => 'required|string',
             'rating' => 'required|string|max:10',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-            'video_url' => 'nullable|url'
+            'video_url' => 'nullable|url',
+            'opening_url' => 'nullable|url'
         ]);
 
         if ($request->hasFile('image')) {

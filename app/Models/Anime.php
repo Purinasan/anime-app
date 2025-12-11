@@ -23,4 +23,12 @@ class Anime extends Model
     ];
 
     protected $dates = ['deleted_at'];
+
+    /**
+     * Get all episodes for this anime
+     */
+    public function episodes()
+    {
+        return $this->hasMany(Episode::class);
+    }
 }
