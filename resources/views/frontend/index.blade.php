@@ -505,6 +505,195 @@
                 width: 80%;
             }
         }
+                    /* Watch Episode Button */
+            .watch-episode-btn {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 0.9rem;
+                font-weight: 600;
+                margin-top: 10px;
+                transition: all 0.3s ease;
+                backdrop-filter: blur(10px);
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .watch-episode-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+            }
+
+            .watch-episode-btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+            /* Video Player Modal */
+            .video-modal {
+                display: none;
+                position: fixed;
+                z-index: 9999;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.95);
+                overflow: auto;
+            }
+
+            .video-modal-content {
+                position: relative;
+                margin: 2% auto;
+                width: 90%;
+                max-width: 1200px;
+                background: #1a1a1a;
+                border-radius: 15px;
+                padding: 20px;
+            }
+
+            .modal-close {
+                position: absolute;
+                top: 10px;
+                right: 20px;
+                color: #fff;
+                font-size: 35px;
+                font-weight: bold;
+                cursor: pointer;
+                z-index: 10000;
+            }
+
+            .modal-close:hover {
+                color: #ff6b81;
+            }
+
+            .video-player-container {
+                position: relative;
+                background: #000;
+                border-radius: 10px;
+                overflow: hidden;
+            }
+
+            .custom-video-player {
+                width: 100%;
+                max-height: 70vh;
+                display: block;
+            }
+
+            .video-controls {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                padding: 15px;
+                background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                transition: opacity 0.3s;
+            }
+
+            .video-player-container:hover .video-controls {
+                opacity: 1;
+            }
+
+            .control-btn {
+                background: rgba(255,255,255,0.2);
+                border: none;
+                color: white;
+                padding: 10px 15px;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            .control-btn:hover {
+                background: rgba(255,255,255,0.4);
+            }
+
+            .progress-bar {
+                flex: 1;
+                height: 8px;
+                background: rgba(255,255,255,0.3);
+                border-radius: 4px;
+                cursor: pointer;
+                position: relative;
+            }
+
+            .progress-filled {
+                height: 100%;
+                background: #ff6b81;
+                border-radius: 4px;
+                transition: width 0.1s;
+            }
+
+            .resolution-selector {
+                position: relative;
+            }
+
+            .resolution-btn {
+                background: rgba(255,255,255,0.2);
+                color: white;
+                border: none;
+                padding: 8px 15px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: bold;
+            }
+
+            .resolution-menu {
+                display: none;
+                position: absolute;
+                bottom: 100%;
+                right: 0;
+                background: #2a2a2a;
+                border-radius: 8px;
+                margin-bottom: 10px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            }
+
+            .resolution-menu.active {
+                display: block;
+            }
+
+            .resolution-option {
+                padding: 12px 20px;
+                cursor: pointer;
+                color: white;
+                transition: all 0.2s;
+                border-radius: 8px;
+            }
+
+            .resolution-option:hover {
+                background: rgba(255,107,129,0.3);
+            }
+
+            .resolution-option.active {
+                background: rgba(255,107,129,0.5);
+                font-weight: bold;
+            }
+
+            .episode-info {
+                padding: 15px 0;
+                color: white;
+            }
+
+            .episode-info h3 {
+                color: #ff6b81;
+                margin-bottom: 10px;
+            }
+
+            .no-episodes {
+                text-align: center;
+                padding: 20px;
+                color: #888;
+            }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -715,6 +904,9 @@
                         ` : ''}
                     </div>
                     <p class="anime-rating">⭐ ${escapeHtml(anime.rating)}</p>
+                    <button class="watch-episode-btn" onclick="openEpisodePlayer(${anime.id}, '${escapeHtml(anime.title)}')" data-anime-id="${anime.id}">
+                        <i class="fas fa-play-circle"></i> Watch Episode
+                    </button>
                 </div>
             `).join('');
 
@@ -853,6 +1045,268 @@
                 .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#039;");
         }
+        // === VIDEO PLAYER FUNCTIONS ===
+        let currentVideo = null;
+        let availableResolutions = {};
+        let currentAnimeId = null;
+        let currentEpisodeId = null;
+
+        async function openEpisodePlayer(animeId, animeTitle) {
+            currentAnimeId = animeId;
+            
+            try {
+                // Fetch episodes for this anime
+                const response = await fetch(`${API_BASE}/anime/${animeId}/episodes`);
+                const result = await response.json();
+                
+                if (!result.success || !result.episodes || result.episodes.length === 0) {
+                    document.getElementById('noEpisodesMessage').style.display = 'block';
+                    document.getElementById('videoPlayerContainer').style.display = 'none';
+                    document.getElementById('videoModal').style.display = 'block';
+                    document.getElementById('modalAnimeTitle').textContent = animeTitle;
+                    document.getElementById('modalEpisodeTitle').textContent = '';
+                    return;
+                }
+                
+                // Load first episode
+                const firstEpisode = result.episodes[0];
+                await loadEpisode(animeId, firstEpisode.id, animeTitle, firstEpisode.title);
+                
+            } catch (error) {
+                console.error('Error loading episodes:', error);
+                alert('Failed to load episodes. Please try again.');
+            }
+        }
+
+        async function loadEpisode(animeId, episodeId, animeTitle, episodeTitle) {
+            currentEpisodeId = episodeId;
+            
+            try {
+                // Fetch episode resolutions
+                const response = await fetch(`${API_BASE}/anime/${animeId}/episodes/${episodeId}/resolutions`);
+                const result = await response.json();
+                
+                if (!result.success || !result.resolutions || Object.keys(result.resolutions).length === 0) {
+                    alert('No video files available for this episode.');
+                    return;
+                }
+                
+                availableResolutions = result.resolutions;
+                
+                // Show modal
+                document.getElementById('videoModal').style.display = 'block';
+                document.getElementById('noEpisodesMessage').style.display = 'none';
+                document.getElementById('videoPlayerContainer').style.display = 'block';
+                document.getElementById('modalAnimeTitle').textContent = animeTitle;
+                document.getElementById('modalEpisodeTitle').textContent = episodeTitle;
+                
+                // Build resolution menu
+                buildResolutionMenu();
+                
+                // Load default resolution (prefer 720p, or highest available)
+                const defaultRes = availableResolutions['720p'] || 
+                                 availableResolutions['1080p'] || 
+                                 availableResolutions['360p'] || 
+                                 availableResolutions['144p'];
+                
+                const defaultResName = availableResolutions['720p'] ? '720p' :
+                                      availableResolutions['1080p'] ? '1080p' :
+                                      availableResolutions['360p'] ? '360p' : '144p';
+                
+                loadVideoSource(defaultRes, defaultResName);
+                
+            } catch (error) {
+                console.error('Error loading episode:', error);
+                alert('Failed to load episode. Please try again.');
+            }
+        }
+
+        function buildResolutionMenu() {
+            const menu = document.getElementById('resolutionMenu');
+            menu.innerHTML = '';
+            
+            const resOrder = ['1080p', '720p', '360p', '144p'];
+            
+            resOrder.forEach(res => {
+                if (availableResolutions[res]) {
+                    const option = document.createElement('div');
+                    option.className = 'resolution-option';
+                    option.textContent = res;
+                    option.onclick = () => changeResolution(res);
+                    menu.appendChild(option);
+                }
+            });
+        }
+
+        function loadVideoSource(src, resolution) {
+            const video = document.getElementById('customVideoPlayer');
+            const currentTime = video.currentTime || 0;
+            const wasPlaying = !video.paused;
+            
+            video.src = src;
+            video.load();
+            
+            if (currentTime > 0) {
+                video.currentTime = currentTime;
+            }
+            
+            if (wasPlaying) {
+                video.play();
+            }
+            
+            document.getElementById('currentResolution').textContent = resolution;
+            document.getElementById('resolutionMenu').classList.remove('active');
+            
+            // Update active state in menu
+            document.querySelectorAll('.resolution-option').forEach(opt => {
+                opt.classList.remove('active');
+                if (opt.textContent === resolution) {
+                    opt.classList.add('active');
+                }
+            });
+        }
+
+        function changeResolution(resolution) {
+            if (availableResolutions[resolution]) {
+                loadVideoSource(availableResolutions[resolution], resolution);
+            }
+        }
+
+        function toggleResolutionMenu() {
+            const menu = document.getElementById('resolutionMenu');
+            menu.classList.toggle('active');
+        }
+
+        function closeVideoPlayer() {
+            const video = document.getElementById('customVideoPlayer');
+            video.pause();
+            video.src = '';
+            document.getElementById('videoModal').style.display = 'none';
+            currentAnimeId = null;
+            currentEpisodeId = null;
+            availableResolutions = {};
+        }
+
+        function togglePlay() {
+            const video = document.getElementById('customVideoPlayer');
+            const icon = document.getElementById('playIcon');
+            
+            if (video.paused) {
+                video.play();
+                icon.classList.remove('fa-play');
+                icon.classList.add('fa-pause');
+            } else {
+                video.pause();
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+            }
+        }
+
+        function seek(e) {
+            const video = document.getElementById('customVideoPlayer');
+            const progressBar = e.currentTarget;
+            const clickX = e.offsetX;
+            const width = progressBar.offsetWidth;
+            const duration = video.duration;
+            
+            video.currentTime = (clickX / width) * duration;
+        }
+
+        function toggleFullscreen() {
+            const container = document.getElementById('videoPlayerContainer');
+            
+            if (!document.fullscreenElement) {
+                container.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Video progress update
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('customVideoPlayer');
+            
+            if (video) {
+                video.addEventListener('timeupdate', function() {
+                    const percent = (video.currentTime / video.duration) * 100;
+                    document.getElementById('progressFilled').style.width = percent + '%';
+                    
+                    const current = formatTime(video.currentTime);
+                    const total = formatTime(video.duration);
+                    document.getElementById('timeDisplay').textContent = `${current} / ${total}`;
+                });
+                
+                video.addEventListener('play', function() {
+                    document.getElementById('playIcon').classList.remove('fa-play');
+                    document.getElementById('playIcon').classList.add('fa-pause');
+                });
+                
+                video.addEventListener('pause', function() {
+                    document.getElementById('playIcon').classList.remove('fa-pause');
+                    document.getElementById('playIcon').classList.add('fa-play');
+                });
+            }
+        });
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('videoModal');
+            if (event.target === modal) {
+                closeVideoPlayer();
+            }
+        }
     </script>
+            <!-- Video Player Modal -->
+        <div id="videoModal" class="video-modal">
+            <div class="video-modal-content">
+                <span class="modal-close" onclick="closeVideoPlayer()">&times;</span>
+                
+                <div class="episode-info">
+                    <h3 id="modalAnimeTitle"></h3>
+                    <p id="modalEpisodeTitle"></p>
+                </div>
+                
+                <div class="video-player-container" id="videoPlayerContainer">
+                    <video id="customVideoPlayer" class="custom-video-player" controls>
+                        Your browser does not support the video tag.
+                    </video>
+                    
+                    <div class="video-controls" id="videoControls">
+                        <button class="control-btn" onclick="togglePlay()">
+                            <i class="fas fa-play" id="playIcon"></i>
+                        </button>
+                        
+                        <div class="progress-bar" onclick="seek(event)">
+                            <div class="progress-filled" id="progressFilled"></div>
+                        </div>
+                        
+                        <span style="color: white; font-size: 14px;" id="timeDisplay">0:00 / 0:00</span>
+                        
+                        <div class="resolution-selector">
+                            <button class="resolution-btn" onclick="toggleResolutionMenu()">
+                                <span id="currentResolution">720p</span>
+                            </button>
+                            <div class="resolution-menu" id="resolutionMenu"></div>
+                        </div>
+                        
+                        <button class="control-btn" onclick="toggleFullscreen()">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="noEpisodesMessage" class="no-episodes" style="display: none;">
+                    No episodes available for this anime yet.
+                </div>
+            </div>
+        </div>
 </body>
 </html>
